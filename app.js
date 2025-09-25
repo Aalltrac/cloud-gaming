@@ -92,21 +92,15 @@ let currentQuery = "";
 function renderGames() {
   if (!gameListEl) return;
   const filtered = games.filter(g => g.toLowerCase().includes(currentQuery));
-  gameListEl.innerHTML = filtered.map(g => `<div class="game-card"><h4>${g}</h4></div>`).join("");
-  if (showMoreBtn) showMoreBtn.style.display = "none";
+  gameListEl.innerHTML = filtered.slice(0, visibleCount).map(g => `<div class="card game-card"><h4>${g}</h4></div>`).join("");
 }
 
-if (gameListEl && showMoreBtn) {
-  renderGames();
-  showMoreBtn.addEventListener("click", () => {
-    visibleCount += 12;
-    renderGames();
-  });
+if (gameListEl) renderGames();
+if (showMoreBtn) {
+  showMoreBtn.addEventListener("click", (e) => { e.preventDefault(); visibleCount += 12; renderGames(); });
 }
 if (searchEl) {
   searchEl.addEventListener("input", (e) => {
-    currentQuery = e.target.value.trim().toLowerCase();
-    visibleCount = 12;
-    renderGames();
+    currentQuery = e.target.value.trim().toLowerCase(); visibleCount = 12; renderGames();
   });
 }
