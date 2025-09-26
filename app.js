@@ -9,6 +9,7 @@ if (navToggle && nav) {
   navToggle.addEventListener("click", () => {
     const open = nav.classList.toggle("open");
     navToggle.setAttribute("aria-expanded", String(open));
+    navToggle.classList.toggle("active", open);
   });
   nav.querySelectorAll("a").forEach(a =>
     a.addEventListener("click", () => {
@@ -18,27 +19,17 @@ if (navToggle && nav) {
   );
 }
 
-const discordUrl = "https://discord.gg/nvzwpvXC6F";
-["copyDiscord", "copyDiscordFooter"].forEach(id => {
-  const btn = document.getElementById(id);
-  if (!btn) return;
-  btn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(discordUrl);
-      btn.textContent = "Lien copié ✓";
-      setTimeout(() => (btn.textContent = "Copier l'invite Discord"), 1600);
-    } catch {
-      window.open(discordUrl, "_blank", "noopener");
-    }
-  });
-});
-
 const lenis = new Lenis({ smoothWheel: true });
-function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+function raf(time) { lenis.raf(time); 
+requestAnimationFrame(raf); }
 requestAnimationFrame(raf);
 
 const header = document.querySelector('.site-header');
-function onScroll(){ if(header) header.classList.toggle('scrolled', window.scrollY > 4); }
+const floatingCta = document.querySelector('.floating-cta');
+function onScroll(){
+  if(header) header.classList.toggle('scrolled', window.scrollY > 4);
+  if(floatingCta) floatingCta.classList.toggle('visible', window.scrollY > 140);
+}
 window.addEventListener('scroll', onScroll); onScroll();
 
 const revealables = document.querySelectorAll(".section .section-head, .card, .steps li, .accordion details");
@@ -48,59 +39,18 @@ const io = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 revealables.forEach(el => io.observe(el));
 
-const games = [
-  "Grand Theft Auto V Legacy",
-  "Forza Horizon 5",
-  "Among Us",
-  "Demon Slayer -Kimetsu no Yaiba- The Hinokami Chronicles",
-  "PC Building Simulator",
-  "Beat Saber",
-  "Watch_Dogs 2",
-  "Euro Truck Simulator 2",
-  "NARUTO SHIPPUDEN: Ultimate Ninja STORM 4",
-  "Need for Speed™ Heat",
-  "Attack on Titan / A.O.T. Wings of Freedom",
-  "Wallpaper Engine",
-  "FIFA 22",
-  "Cyberpunk 2077",
-  "Marvel's Spider-Man: Miles Morales",
-  "Phasmophobia",
-  "Garry's Mod",
-  "Kingdom Two Crowns",
-  "Swing Dunk",
-  "Assetto Corsa",
-  "STAR WARS Jedi: Fallen Order™",
-  "STAR WARS™: Squadrons",
-  "Escape the Backrooms",
-  "BLACK CLOVER: QUARTET KNIGHTS",
-  "Zup! Zero",
-  "Grand Theft Auto V Enhanced",
-  "Last Room",
-  "Star Merchant",
-  "ARK: Survival Of The Fittest",
-  "ARK: Survival Evolved",
-  "RACE 07: Andy Priaulx Crowne Plaza Raceway"
-];
-
-const gameListEl = document.getElementById("gameList");
-const showMoreBtn = document.getElementById("showMore");
-const searchEl = document.getElementById("gameSearch");
-
-let visibleCount = 12;
-let currentQuery = "";
-
-function renderGames() {
-  if (!gameListEl) return;
-  const filtered = games.filter(g => g.toLowerCase().includes(currentQuery));
-  gameListEl.innerHTML = filtered.slice(0, visibleCount).map(g => `<div class="card game-card"><h4>${g}</h4></div>`).join("");
-}
-
-if (gameListEl) renderGames();
-if (showMoreBtn) {
-  showMoreBtn.addEventListener("click", (e) => { e.preventDefault(); visibleCount += 12; renderGames(); });
-}
-if (searchEl) {
-  searchEl.addEventListener("input", (e) => {
-    currentQuery = e.target.value.trim().toLowerCase(); visibleCount = 12; renderGames();
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener("click",(e)=>{
+    const id = a.getAttribute("href");
+    const target = document.querySelector(id);
+    if(target){ e.preventDefault(); lenis.scrollTo(target,{offset:-64}); }
   });
-}
+});
+
+const navLinks = document.querySelectorAll('.nav a[href^="#"]');
+const sections = [...document.querySelectorAll('main section')];
+window.addEventListener('scroll', () => {
+  const y = window.scrollY + 80;
+  const current = sections.findLast(s => s.offsetTop <= y);
+  navLinks.forEach(l => l.classList.toggle('active', current && l.getAttribute('href') === `#${current.id}`));
+});
